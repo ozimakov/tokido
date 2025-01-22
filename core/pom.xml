@@ -51,6 +51,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -80,9 +81,7 @@
     <profiles>
         <profile>
             <id>local</id>
-            <dependencies>
-
-            </dependencies>
+            <dependencies/>
         </profile>
     </profiles>
 
@@ -109,6 +108,12 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
