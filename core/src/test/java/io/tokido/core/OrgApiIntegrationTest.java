@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.*;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.tokido.core.model.OrgDTO;
 import io.tokido.core.repos.OrgRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,20 +52,8 @@ public class OrgApiIntegrationTest {
                     .statusCode(200)
                     .body(".", hasSize(0));
 
-        var org1 = DataGenerator.newOrg();
-
-        var id1 =
-                given()
-                        .contentType(ContentType.JSON)
-                        .when()
-                            .body(org1)
-                            .post("/api/orgs")
-                        .then()
-                            .statusCode(201)
-                            .body(notNullValue())
-                        .extract().body().as(Long.class);
-
-        Assert.isTrue(id1 != null && id1 > 0, "ID is null");
+        var org1 = createOrg();
+        var org2 = createOrg();
 
         given()
                 .contentType(ContentType.JSON)
@@ -72,19 +61,37 @@ public class OrgApiIntegrationTest {
                     .get("/api/orgs")
                 .then()
                     .statusCode(200)
-                    .body(".", hasSize(greaterThanOrEqualTo(1)));
+                    .body(".", hasSize(greaterThanOrEqualTo(2)));
+    }
 
-        given()
+    public void testAddAndThenDeleteEmptyOrg() {
+
+    }
+
+    private OrgDTO createOrg() {
+        var org = DataGenerator.newOrg();
+        var id =
+                given()
+                        .contentType(ContentType.JSON)
+                        .when()
+                            .body(org)
+                            .post("/api/orgs")
+                        .then()
+                            .statusCode(201)
+                            .body(notNullValue())
+                        .extract().body().as(Long.class);
+        Assert.isTrue(id != null && id > 0, "ID is null");
+
+        return given()
                 .contentType(ContentType.JSON)
                 .when()
-                    .pathParam("orgId", id1)
+                    .pathParam("orgId", id)
                     .get("/api/orgs/{orgId}")
                 .then()
                     .statusCode(200)
-                    .body("id", equalTo(id1.intValue()))
-                    .body("orgName", equalTo(org1.getOrgName()));
+                    .body("id", equalTo(id.intValue()))
+                    .body("orgName", equalTo(org.getOrgName()))
+                .extract().body().as(OrgDTO.class);
     }
-
-
 
 }
