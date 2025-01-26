@@ -3,6 +3,7 @@ package io.tokido.core.domain;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +29,7 @@ public class Org {
     private String orgName;
 
     @DocumentReference(lazy = true)
-    private Set<User> owners;
+    private List<User> owners;
 
     @DocumentReference(lazy = true, lookup = "{ 'org' : ?#{#self._id} }")
     @ReadOnlyProperty

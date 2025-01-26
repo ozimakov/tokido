@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventLis
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class FactorListener extends AbstractMongoEventListener<Factor> {
 

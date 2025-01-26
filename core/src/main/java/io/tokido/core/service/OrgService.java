@@ -77,7 +77,7 @@ public class OrgService {
         if (owners.size() != (orgDTO.getOwners() == null ? 0 : orgDTO.getOwners().size())) {
             throw new NotFoundException("one of owners not found");
         }
-        org.setOwners(new HashSet<>(owners));
+        org.setOwners(new ArrayList<>(owners));
         return org;
     }
 
