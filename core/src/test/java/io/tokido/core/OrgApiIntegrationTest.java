@@ -64,8 +64,94 @@ public class OrgApiIntegrationTest {
                     .body(".", hasSize(greaterThanOrEqualTo(2)));
     }
 
-    public void testAddAndThenDeleteEmptyOrg() {
+    @Test
+    public void testAddAndThenDeleteOrg() {
+        var org = createOrg();
 
+        Assert.isTrue(orgRepository.count() == 1, "Unexpected number of orgs in the repo: not 1");
+
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .pathParam("orgId", org.getId())
+                .delete("/api/orgs/{orgId}")
+            .then()
+                .statusCode(204);
+
+        Assert.isTrue(orgRepository.count() == 0, "Unexpected number of orgs in the repo: not 0");
+    }
+
+    @Test
+    public void testUpdate() {
+        var org = createOrg();
+
+        org.setOrgName(org.getOrgName() + "_UPD");
+
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .pathParam("orgId", org.getId())
+                .body(org)
+                .put("/api/orgs/{orgId}")
+            .then()
+                .statusCode(200)
+                .body(".", equalTo(org.getId().intValue()));
+
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .pathParam("orgId", org.getId())
+                .get("/api/orgs/{orgId}")
+            .then()
+                .statusCode(200)
+                .body("id", equalTo(org.getId().intValue()))
+                .body("orgName", equalTo(org.getOrgName()));
+    }
+
+    @Test
+    public void testCreateWithOwnId() {
+        var org = DataGenerator.newOrg();
+        org.setId(999L);
+
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .body(org)
+                .post("/api/orgs")
+            .then()
+                .statusCode(201)
+                .body(".", not(equalTo(org.getId().intValue())));
+    }
+
+    @Test
+    public void testNotFound() {
+        var org1 = createOrg();
+        var org2 = createOrg();
+        var org3 = createOrg();
+
+        testFetchNotFound();
+        testDeleteNotFound();
+    }
+
+    private void testFetchNotFound() {
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .pathParam("orgId", 1)  // must never exist as mongo set to start counters with 10000
+                .get("/api/orgs/{orgId}")
+            .then()
+                .statusCode(404);
+    }
+
+    private void testDeleteNotFound() {
+        var id = 1;
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+                .pathParam("orgId", 1)  // must never exist as mongo set to start counters with 10000
+                .delete("/api/orgs/{orgId}")
+            .then()
+                .statusCode(404);
     }
 
     private OrgDTO createOrg() {
